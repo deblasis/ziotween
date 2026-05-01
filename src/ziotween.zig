@@ -274,3 +274,29 @@ test "ease cubicInOut" {
 test "ease sineInOut" {
     try std.testing.expectApproxEqAbs(@as(f32, 0.5), ease.sineInOut(0.5), 0.001);
 }
+
+test "Tween f64 precision" {
+    var t = Tween(f64).init(0, 100, 1000, struct {
+        fn f(t: f64) f64 { return t; }
+    }.f);
+    t.start();
+    const v = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f64, 50), v, 0.1);
+}
+
+test "Tween large values" {
+    var t = Tween(f32).init(-1000, 1000, 1000, ease.linear);
+    t.start();
+    const v = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 0), v, 0.1);
+}
+
+test "Sequence empty" {
+    var tweens = [_]Tween(f32){};
+    var seq = Sequence(f32).init(&tweens);
+    seq.start();
+    // Empty sequence: start sets running=true, but no tweens to process
+    // update should return 0
+    const v = seq.update(100);
+    try std.testing.expectEqual(@as(f32, 0), v);
+}
