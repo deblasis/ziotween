@@ -433,3 +433,17 @@ test "tween value at end equals target" {
     try std.testing.expectApproxEqAbs(@as(f32, 100), t.value(), 0.1);
     try std.testing.expect(t.done());
 }
+
+test "Tween same start and end value" {
+    var t = Tween(f32).init(42, 42, 1000, ease.linear);
+    t.start();
+    _ = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 42), t.value(), 0.001);
+}
+
+test "Tween negative range" {
+    var t = Tween(f32).init(-10, 10, 1000, ease.linear);
+    t.start();
+    _ = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 0), t.value(), 0.1);
+}
