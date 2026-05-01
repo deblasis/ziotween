@@ -8,7 +8,7 @@ Part of the [zio-zig](https://github.com/deblasis/zio-zig) ecosystem.
 
 ```zig
 const ztween = @import("ziotween");
-const ease = @import("zioease");
+const ease = ztween.ease;
 
 // Create a tween: value goes from 0 to 100 over 1 second
 var t = ztween.Tween(f32).init(0, 100, 1_000_000_000, ease.linear);
@@ -29,7 +29,6 @@ var tweens = [_]ztween.Tween(f32){
 };
 var seq = ztween.Sequence(f32).init(&tweens);
 seq.start();
-const val = seq.update(600_000_000); // in second tween
 ```
 
 ```bash
@@ -41,14 +40,12 @@ zig build run-example   # Run example
 
 ```
 $ zig build run-example
-t=1: 125.0
-t=2: 112.5
-t=3: 87.5
-t=4: 103.1
-t=5: 101.6
-...
-t=9: 99.8
-t=10: 100.0
+After 16ms: 1.6
+Progress: 0.02
+Done: false
+After 1s: 100.0
+Done: true
+Sequence done: false
 ```
 
 ## API
