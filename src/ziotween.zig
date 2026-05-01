@@ -416,3 +416,20 @@ test "Tween with zero duration returns end value" {
     try std.testing.expectApproxEqAbs(@as(f32, 100), v, 0.1);
     try std.testing.expect(t.done());
 }
+
+test "linear tween value at midpoint is average" {
+    const from: f32 = 10;
+    const to: f32 = 30;
+    var t = Tween(f32).init(from, to, 1000, ease.linear);
+    t.start();
+    _ = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 20), t.value(), 0.1);
+}
+
+test "tween value at end equals target" {
+    var t = Tween(f32).init(0, 100, 1000, ease.linear);
+    t.start();
+    _ = t.update(1000);
+    try std.testing.expectApproxEqAbs(@as(f32, 100), t.value(), 0.1);
+    try std.testing.expect(t.done());
+}
