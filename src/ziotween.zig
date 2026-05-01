@@ -389,3 +389,30 @@ test "Tween value at start" {
     t.start();
     try std.testing.expectApproxEqAbs(@as(f32, 10), t.value(), 0.1);
 }
+
+test "Sequence of tweens runs in order" {
+    var tweens = [_]Tween(f32){
+        Tween(f32).init(0, 10, 100, ease.linear),
+        Tween(f32).init(10, 20, 100, ease.linear),
+    };
+    var seq = Sequence(f32).init(&tweens);
+    seq.start();
+
+    // First tween: 0→10 over 100ns
+    const v1 = seq.update(50);
+    try std.testing.expect(v1 > 0 and v1 < 10);
+    const v2 = seq.update(50);
+    try std.testing.expectApproxEqAbs(@as(f32, 10), v2, 0.1);
+
+    // Second tween: 10→20 over 100ns
+    const v3 = seq.update(50);
+    try std.testing.expect(v3 > 10 and v3 < 20);
+}
+
+test "Tween with zero duration returns end value" {
+    var t = Tween(f32).init(5, 100, 0, ease.linear);
+    t.start();
+    const v = t.update(0);
+    try std.testing.expectApproxEqAbs(@as(f32, 100), v, 0.1);
+    try std.testing.expect(t.done());
+}
