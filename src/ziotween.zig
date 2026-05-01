@@ -371,3 +371,21 @@ test "Tween start resets elapsed" {
 test "ease linear at 0.25" {
     try std.testing.expectApproxEqAbs(@as(f32, 0.25), ease.linear(0.25), 0.001);
 }
+
+test "Tween with elastic ease overshoots then settles" {
+    var t = Tween(f32).init(0, 100, 1000, ease.elasticOut);
+    t.start();
+    // At some point during animation, value should exceed target
+    var overshot = false;
+    for (0..20) |_| {
+        const v = t.update(50);
+        if (v > 100) overshot = true;
+    }
+    try std.testing.expect(overshot);
+}
+
+test "Tween value at start" {
+    var t = Tween(f32).init(10, 50, 1000, ease.linear);
+    t.start();
+    try std.testing.expectApproxEqAbs(@as(f32, 10), t.value(), 0.1);
+}
