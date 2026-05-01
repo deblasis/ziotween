@@ -447,3 +447,13 @@ test "Tween negative range" {
     _ = t.update(500);
     try std.testing.expectApproxEqAbs(@as(f32, 0), t.value(), 0.1);
 }
+
+test "Sequence with single tween" {
+    var tweens = [_]Tween(f32){
+        Tween(f32).init(0, 100, 500, ease.linear),
+    };
+    var seq = Sequence(f32).init(&tweens);
+    seq.start();
+    _ = seq.update(250);
+    try std.testing.expect(!seq.done());
+}
