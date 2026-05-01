@@ -511,3 +511,11 @@ test "Tween(f64) high precision" {
     _ = t.update(1);
     try std.testing.expect(t.value() < 1e-6);
 }
+
+test "health bar tween from 100 to 30" {
+    var t = Tween(f32).init(100, 30, 500, ease.cubicOut);
+    t.start();
+    _ = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 30), t.value(), 0.1);
+    try std.testing.expect(t.done());
+}
