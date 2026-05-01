@@ -252,3 +252,25 @@ test "Sequence chains tweens" {
     _ = seq.update(250); // finish second
     try std.testing.expect(seq.done());
 }
+
+test "Tween negative values" {
+    var t = Tween(f32).init(-100, 100, 1000, ease.linear);
+    t.start();
+    const v = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, 0), v, 0.1);
+}
+
+test "Tween very small duration" {
+    var t = Tween(f32).init(0, 100, 1, ease.linear);
+    t.start();
+    _ = t.update(1);
+    try std.testing.expect(t.done());
+}
+
+test "ease cubicInOut" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.5), ease.cubicInOut(0.5), 0.001);
+}
+
+test "ease sineInOut" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.5), ease.sineInOut(0.5), 0.001);
+}
