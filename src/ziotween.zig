@@ -487,3 +487,27 @@ test "example: bounce tween converges to target" {
     _ = t.update(1000);
     try std.testing.expectApproxEqAbs(@as(f32, 100), t.value(), 0.1);
 }
+
+test "Tween(f64) linear midpoint" {
+    const easeF64 = struct {
+        fn linear(t: f64) f64 {
+            return t;
+        }
+    };
+    var t = Tween(f64).init(0, 100, 1000, easeF64.linear);
+    t.start();
+    _ = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f64, 50.0), t.value(), 0.1);
+}
+
+test "Tween(f64) high precision" {
+    const easeF64 = struct {
+        fn linear(t: f64) f64 {
+            return t;
+        }
+    };
+    var t = Tween(f64).init(0, 1, 1_000_000_000, easeF64.linear);
+    t.start();
+    _ = t.update(1);
+    try std.testing.expect(t.value() < 1e-6);
+}
