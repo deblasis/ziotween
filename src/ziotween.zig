@@ -319,3 +319,11 @@ test "Tween yoyo with loop returns to start" {
     _ = t.update(1000); // backward complete → value 0
     try std.testing.expectApproxEqAbs(@as(f32, 0), t.value(), 0.1);
 }
+
+test "ease quadIn value" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.25), ease.quadIn(0.5), 0.001);
+}
+
+test "ease cubicOut value" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.875), ease.cubicOut(0.5), 0.001);
+}
