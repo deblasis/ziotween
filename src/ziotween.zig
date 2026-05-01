@@ -327,3 +327,34 @@ test "ease quadIn value" {
 test "ease cubicOut value" {
     try std.testing.expectApproxEqAbs(@as(f32, 0.875), ease.cubicOut(0.5), 0.001);
 }
+
+test "Sequence with three tweens" {
+    var tweens = [_]Tween(f32){
+        Tween(f32).init(0, 10, 100, ease.linear),
+        Tween(f32).init(10, 20, 100, ease.linear),
+        Tween(f32).init(20, 30, 100, ease.linear),
+    };
+    var seq = Sequence(f32).init(&tweens);
+    seq.start();
+
+    _ = seq.update(100); // finish first
+    _ = seq.update(100); // finish second
+    _ = seq.update(100); // finish third
+    try std.testing.expect(seq.done());
+}
+
+test "Tween negative to negative" {
+    var t = Tween(f32).init(-50, -10, 1000, ease.linear);
+    t.start();
+    const v = t.update(500);
+    try std.testing.expectApproxEqAbs(@as(f32, -30), v, 0.1);
+}
+
+test "Tween done after exact duration" {
+    var t = Tween(f32).init(0, 100, 1000, ease.linear);
+    t.start();
+    _ = t.update(999);
+    try std.testing.expect(!t.done());
+    _ = t.update(1);
+    try std.testing.expect(t.done());
+}
