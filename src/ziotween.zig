@@ -358,3 +358,16 @@ test "Tween done after exact duration" {
     _ = t.update(1);
     try std.testing.expect(t.done());
 }
+
+test "Tween start resets elapsed" {
+    var t = Tween(f32).init(0, 100, 1000, ease.linear);
+    t.start();
+    _ = t.update(500);
+    t.start(); // restart
+    try std.testing.expectEqual(@as(u64, 0), t.elapsed_ns);
+    try std.testing.expect(!t.done());
+}
+
+test "ease linear at 0.25" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.25), ease.linear(0.25), 0.001);
+}
