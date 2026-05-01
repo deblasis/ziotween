@@ -33,7 +33,7 @@ const val = seq.update(600_000_000); // in second tween
 ```
 
 ```bash
-zig build test          # Run 37 tests
+zig build test          # Run 40 tests
 zig build run-example   # Run example
 ```
 
