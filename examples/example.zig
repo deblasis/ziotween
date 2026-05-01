@@ -7,6 +7,6 @@ pub fn main() !void {
 
     for (0..10) |i| {
         const v = t.update(100_000_000);
-        std.debug.print("t={d}: {d:.1}\n", .{i + 1, v});
+        std.debug.print("t={d}: {d:.1}\n", .{ i + 1, v });
     }
 }

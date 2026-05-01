@@ -96,18 +96,30 @@ pub fn Tween(comptime T: type) type {
 
 /// Built-in easing functions that can be used directly.
 pub const ease = struct {
-    pub fn linear(t: f32) f32 { return t; }
-    pub fn quadIn(t: f32) f32 { return t * t; }
-    pub fn quadOut(t: f32) f32 { return -(t - 1) * (t - 1) + 1; }
+    pub fn linear(t: f32) f32 {
+        return t;
+    }
+    pub fn quadIn(t: f32) f32 {
+        return t * t;
+    }
+    pub fn quadOut(t: f32) f32 {
+        return -(t - 1) * (t - 1) + 1;
+    }
     pub fn quadInOut(t: f32) f32 {
         if (t < 0.5) return 2 * t * t;
         return -1 + (4 - 2 * t) * t;
     }
-    pub fn cubicIn(t: f32) f32 { return t * t * t; }
-    pub fn cubicOut(t: f32) f32 { const t1 = t - 1; return t1 * t1 * t1 + 1; }
+    pub fn cubicIn(t: f32) f32 {
+        return t * t * t;
+    }
+    pub fn cubicOut(t: f32) f32 {
+        const t1 = t - 1;
+        return t1 * t1 * t1 + 1;
+    }
     pub fn cubicInOut(t: f32) f32 {
         if (t < 0.5) return 4 * t * t * t;
-        const t1 = 2 * t - 2; return 0.5 * t1 * t1 * t1 + 1;
+        const t1 = 2 * t - 2;
+        return 0.5 * t1 * t1 * t1 + 1;
     }
     pub fn elasticOut(t: f32) f32 {
         if (t == 0 or t == 1) return t;
@@ -115,11 +127,20 @@ pub const ease = struct {
     }
     pub fn bounceOut(t: f32) f32 {
         if (t < 1.0 / 2.75) return 7.5625 * t * t;
-        if (t < 2.0 / 2.75) { const t1 = t - 1.5 / 2.75; return 7.5625 * t1 * t1 + 0.75; }
-        if (t < 2.5 / 2.75) { const t1 = t - 2.25 / 2.75; return 7.5625 * t1 * t1 + 0.9375; }
-        const t1 = t - 2.625 / 2.75; return 7.5625 * t1 * t1 + 0.984375;
+        if (t < 2.0 / 2.75) {
+            const t1 = t - 1.5 / 2.75;
+            return 7.5625 * t1 * t1 + 0.75;
+        }
+        if (t < 2.5 / 2.75) {
+            const t1 = t - 2.25 / 2.75;
+            return 7.5625 * t1 * t1 + 0.9375;
+        }
+        const t1 = t - 2.625 / 2.75;
+        return 7.5625 * t1 * t1 + 0.984375;
     }
-    pub fn sineInOut(t: f32) f32 { return -0.5 * (@cos(std.math.pi * t) - 1); }
+    pub fn sineInOut(t: f32) f32 {
+        return -0.5 * (@cos(std.math.pi * t) - 1);
+    }
 };
 
 /// Tween sequence — chain multiple tweens one after another.
@@ -277,7 +298,9 @@ test "ease sineInOut" {
 
 test "Tween f64 precision" {
     var t = Tween(f64).init(0, 100, 1000, struct {
-        fn f(t: f64) f64 { return t; }
+        fn f(t: f64) f64 {
+            return t;
+        }
     }.f);
     t.start();
     const v = t.update(500);
