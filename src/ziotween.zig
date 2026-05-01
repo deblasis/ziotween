@@ -457,3 +457,10 @@ test "Sequence with single tween" {
     _ = seq.update(250);
     try std.testing.expect(!seq.done());
 }
+
+test "example: bounce tween converges to target" {
+    var t = Tween(f32).init(100, 100, 1000, ease.elasticOut);
+    t.start();
+    _ = t.update(1000);
+    try std.testing.expectApproxEqAbs(@as(f32, 100), t.value(), 0.1);
+}

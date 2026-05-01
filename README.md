@@ -37,6 +37,20 @@ zig build test          # Run 37 tests
 zig build run-example   # Run example
 ```
 
+## Example output
+
+```
+$ zig build run-example
+t=1: 125.0
+t=2: 112.5
+t=3: 87.5
+t=4: 103.1
+t=5: 101.6
+...
+t=9: 99.8
+t=10: 100.0
+```
+
 ## API
 
 ### Tween(T)
