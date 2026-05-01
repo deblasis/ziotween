@@ -300,3 +300,22 @@ test "Sequence empty" {
     const v = seq.update(100);
     try std.testing.expectEqual(@as(f32, 0), v);
 }
+
+test "Tween ease quadOut" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.75), ease.quadOut(0.5), 0.001);
+}
+
+test "Tween ease bounceOut at 0.5" {
+    const v = ease.bounceOut(0.5);
+    try std.testing.expect(v > 0 and v < 1);
+}
+
+test "Tween yoyo with loop returns to start" {
+    var t = Tween(f32).init(0, 100, 1000, ease.linear);
+    t.looping = true;
+    t.yoyo = true;
+    t.start();
+    _ = t.update(1000); // forward complete → value 100
+    _ = t.update(1000); // backward complete → value 0
+    try std.testing.expectApproxEqAbs(@as(f32, 0), t.value(), 0.1);
+}
