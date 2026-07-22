@@ -8,18 +8,30 @@ const std = @import("std");
 /// A single tween that animates a float value from `start` to `end`.
 pub fn Tween(comptime T: type) type {
     return struct {
+        /// Value at progress 0.
         start_val: T,
+        /// Value at progress 1.
         end_val: T,
+        /// Total animation length in nanoseconds.
         duration_ns: u64,
+        /// Time elapsed since the tween started, in nanoseconds.
         elapsed_ns: u64,
+        /// Easing curve applied to normalized progress.
         easing: EasingFn,
+        /// Whether the tween is currently advancing on `update`.
         running: bool,
+        /// Whether the tween restarts from the beginning after completing.
         looping: bool,
+        /// When looping, whether each cycle reverses direction (ping-pong).
         yoyo: bool,
+        /// Current direction: true while a yoyo cycle is playing backward.
         reversed: bool,
 
+        /// Easing function type: maps normalized progress to an eased value.
         pub const EasingFn = *const fn (T) T;
 
+        /// Create a tween from `from` to `to` over `duration_ns`, using `easing`.
+        /// The tween is created stopped; call `start` to run it.
         pub fn init(from: T, to: T, duration_ns: u64, easing: EasingFn) @This() {
             return .{
                 .start_val = from,
@@ -96,35 +108,44 @@ pub fn Tween(comptime T: type) type {
 
 /// Built-in easing functions that can be used directly.
 pub const ease = struct {
+    /// No easing: returns `t` unchanged (constant speed).
     pub fn linear(t: f32) f32 {
         return t;
     }
+    /// Quadratic ease-in: accelerates from zero speed.
     pub fn quadIn(t: f32) f32 {
         return t * t;
     }
+    /// Quadratic ease-out: decelerates to zero speed.
     pub fn quadOut(t: f32) f32 {
         return -(t - 1) * (t - 1) + 1;
     }
+    /// Quadratic ease-in-out: accelerates then decelerates.
     pub fn quadInOut(t: f32) f32 {
         if (t < 0.5) return 2 * t * t;
         return -1 + (4 - 2 * t) * t;
     }
+    /// Cubic ease-in: accelerates from zero speed, steeper than quadratic.
     pub fn cubicIn(t: f32) f32 {
         return t * t * t;
     }
+    /// Cubic ease-out: decelerates to zero speed.
     pub fn cubicOut(t: f32) f32 {
         const t1 = t - 1;
         return t1 * t1 * t1 + 1;
     }
+    /// Cubic ease-in-out: accelerates then decelerates.
     pub fn cubicInOut(t: f32) f32 {
         if (t < 0.5) return 4 * t * t * t;
         const t1 = 2 * t - 2;
         return 0.5 * t1 * t1 * t1 + 1;
     }
+    /// Elastic ease-out: overshoots the target and oscillates before settling.
     pub fn elasticOut(t: f32) f32 {
         if (t == 0 or t == 1) return t;
         return std.math.pow(f32, 2, -10 * t) * @sin((10 * t - 0.75) * (2 * std.math.pi) / 3) + 1;
     }
+    /// Bounce ease-out: settles onto the target with decaying bounces.
     pub fn bounceOut(t: f32) f32 {
         if (t < 1.0 / 2.75) return 7.5625 * t * t;
         if (t < 2.0 / 2.75) {
@@ -138,6 +159,7 @@ pub const ease = struct {
         const t1 = t - 2.625 / 2.75;
         return 7.5625 * t1 * t1 + 0.984375;
     }
+    /// Sinusoidal ease-in-out: a smooth cosine-based acceleration curve.
     pub fn sineInOut(t: f32) f32 {
         return -0.5 * (@cos(std.math.pi * t) - 1);
     }
@@ -146,20 +168,27 @@ pub const ease = struct {
 /// Tween sequence — chain multiple tweens one after another.
 pub fn Sequence(comptime T: type) type {
     return struct {
+        /// The tweens to play, in order. Owned by the caller.
         tweens: []Tween(T),
+        /// Index of the tween currently playing.
         current: usize,
+        /// Whether the sequence is advancing.
         running: bool,
 
+        /// Create a sequence over the given tweens. Created stopped; call `start`.
         pub fn init(tweens: []Tween(T)) @This() {
             return .{ .tweens = tweens, .current = 0, .running = false };
         }
 
+        /// Restart the sequence from the first tween.
         pub fn start(self: *@This()) void {
             self.current = 0;
             self.running = true;
             if (self.tweens.len > 0) self.tweens[0].start();
         }
 
+        /// Advance the active tween by `dt_ns`, moving to the next when it
+        /// completes. Returns the current value.
         pub fn update(self: *@This(), dt_ns: u64) T {
             if (!self.running or self.current >= self.tweens.len) return if (self.tweens.len > 0) self.tweens[self.tweens.len - 1].value() else 0;
             const v = self.tweens[self.current].update(dt_ns);
@@ -174,6 +203,7 @@ pub fn Sequence(comptime T: type) type {
             return v;
         }
 
+        /// Whether every tween in the sequence has finished.
         pub fn done(self: *const @This()) bool {
             return !self.running;
         }
@@ -290,6 +320,20 @@ test "Tween very small duration" {
 
 test "ease cubicInOut" {
     try std.testing.expectApproxEqAbs(@as(f32, 0.5), ease.cubicInOut(0.5), 0.001);
+}
+
+test "ease quadInOut" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0), ease.quadInOut(0), 0.001);
+    try std.testing.expectApproxEqAbs(@as(f32, 0.5), ease.quadInOut(0.5), 0.001);
+    try std.testing.expectApproxEqAbs(@as(f32, 1), ease.quadInOut(1), 0.001);
+    // Symmetric about the midpoint.
+    try std.testing.expectApproxEqAbs(ease.quadInOut(0.25), 1 - ease.quadInOut(0.75), 0.001);
+}
+
+test "ease cubicIn" {
+    try std.testing.expectApproxEqAbs(@as(f32, 0.125), ease.cubicIn(0.5), 0.001);
+    try std.testing.expectApproxEqAbs(@as(f32, 0), ease.cubicIn(0), 0.001);
+    try std.testing.expectApproxEqAbs(@as(f32, 1), ease.cubicIn(1), 0.001);
 }
 
 test "ease sineInOut" {
